@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="robots" content="noindex">
+  <title>Editors · Bluebee</title>
+  <style>html.auth-pending body{visibility:hidden}</style>
+  <script src="/assets/auth-guard.js"></script>
+  <link rel="stylesheet" href="/assets/app.css">
+  <link rel="stylesheet" href="/assets/admin.css">
+</head>
+<body class="dashboard-body">
+  <div class="app-frame">
+    <!-- Sidebar: the menu and user box are filled in by shell.js for your role -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-brand">
+        <a href="/"><span><strong>Bluebee</strong></span></a>
+        <button type="button" class="sidebar-close" id="sidebarClose" aria-label="Close navigation">×</button>
+      </div>
+      <nav class="sidebar-nav"></nav>
+      <div class="sidebar-user"></div>
+    </aside>
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <div class="main-column">
+      <button type="button" class="menu-toggle floating-menu" id="menuToggle" aria-label="Open navigation">☰</button>
+      <main class="content-shell">
+        <section class="page-head">
+          <div>
+            <a class="back-link" href="/admin-dashboard.html">← Platform overview</a>
+            <h1>Editors</h1>
+            <p>Everyone who can sign in across the platform. Reset passwords or disable access. To add someone, open their publisher’s Team page.</p>
+          </div>
+        </section>
+        <section class="panel table-wrap">
+          <div class="section-head padded"><div><span class="eyebrow">Platform users</span><h2 id="editorCount">Editors</h2></div></div>
+          <div class="list-search">
+            <label for="editorSearch">Search editors</label>
+            <input type="search" id="editorSearch" placeholder="Name, email, workspace, role, or status" autocomplete="off">
+            <p class="list-search-status" id="editorStatus" role="status" aria-live="polite"></p>
+            <p class="list-search-empty" id="editorEmpty" hidden>No matches found. Try a different search.</p>
+          </div>
+          <div class="table-scroll">
+            <table>
+              <thead><tr><th>Person</th><th>Workspace</th><th>Role</th><th>Status</th><th></th></tr></thead>
+              <tbody id="editorRows"></tbody>
+            </table>
+          </div>
+        </section>
+        <div id="toast" class="toast" role="status" aria-live="polite"></div>
+      </main>
+    </div>
+  </div>
+
+  <script src="/assets/common.js"></script>
+  <script src="/assets/shell.js"></script>
+  <script src="/assets/admin-editors.js"></script>
+</body>
+</html>

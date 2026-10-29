@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="robots" content="noindex">
+  <title>Announcements · Bluebee</title>
+  <style>html.auth-pending body{visibility:hidden}</style>
+  <script src="/assets/auth-guard.js"></script>
+  <link rel="stylesheet" href="/assets/app.css">
+  <link rel="stylesheet" href="/assets/admin.css">
+</head>
+<body class="dashboard-body">
+  <div class="app-frame">
+    <!-- Sidebar: the menu and user box are filled in by shell.js for your role -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-brand">
+        <a href="/"><span><strong>Bluebee</strong></span></a>
+        <button type="button" class="sidebar-close" id="sidebarClose" aria-label="Close navigation">×</button>
+      </div>
+      <nav class="sidebar-nav"></nav>
+      <div class="sidebar-user"></div>
+    </aside>
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <div class="main-column">
+      <button type="button" class="menu-toggle floating-menu" id="menuToggle" aria-label="Open navigation">☰</button>
+      <main class="content-shell">
+        <section class="page-head">
+          <div>
+            <a class="back-link" href="/admin-dashboard.html">← Platform overview</a>
+            <h1>Announcements</h1>
+            <p>Show a notice at the top of members’ pages, to everyone or to selected people.</p>
+          </div>
+        </section>
+        <div class="split-layout">
+          <section class="panel form-card">
+            <div class="section-head"><div><span class="eyebrow">New announcement</span><h2>Compose message</h2></div></div>
+            <form class="stack" id="announceForm">
+              <label>Title <span class="counter">160 characters</span><input name="title" maxlength="160" required placeholder="What members need to know"></label>
+              <label>Message <span class="counter">5,000 characters</span><textarea name="message" maxlength="5000" required rows="5" placeholder="Write a clear, useful update…"></textarea></label>
+              <fieldset class="account-access">
+                <legend>Countdown <span class="optional">optional</span></legend>
+                <div class="check-list"><label><input type="checkbox" id="hasCountdown"><span><strong>Add a countdown</strong><small>Show a live timer. The notice stays visible when it ends.</small></span></label></div>
+                <div class="countdown-fields" id="countdownFields" hidden>
+                  <label style="margin-top:12px">Countdown ends at<input type="datetime-local" name="countdownEndsAt" id="countdownEndsAt"><small>Uses your device’s local time.</small></label>
+                </div>
+              </fieldset>
+              <fieldset class="account-access">
+                <legend>Audience</legend>
+                <div class="radio-options check-list">
+                  <label><input type="radio" name="audience" value="all" checked><span><strong>Everyone</strong><small id="allCount">All active members.</small></span></label>
+                  <label><input type="radio" name="audience" value="selected"><span><strong>Selected people</strong><small>Choose individual recipients.</small></span></label>
+                </div>
+                <div class="recipient-list check-list" id="recipientList" hidden style="margin-top:12px"></div>
+              </fieldset>
+              <button class="button" type="submit" id="announceSubmit">Send announcement</button>
+            </form>
+          </section>
+          <section class="panel">
+            <div class="section-head"><div><span class="eyebrow">History</span><h2>Sent announcements</h2></div></div>
+            <div class="audit-list" id="announceList"></div>
+            <div class="empty-state" id="announceEmpty" hidden>No announcements yet.</div>
+          </section>
+        </div>
+        <div id="toast" class="toast" role="status" aria-live="polite"></div>
+      </main>
+    </div>
+  </div>
+
+  <script src="/assets/common.js"></script>
+  <script src="/assets/shell.js"></script>
+  <script src="/assets/admin-announcements.js"></script>
+</body>
+</html>

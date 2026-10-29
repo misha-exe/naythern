@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="robots" content="noindex">
+  <title>Edit publisher · Bluebee</title>
+  <style>html.auth-pending body{visibility:hidden}</style>
+  <script src="/assets/auth-guard.js"></script>
+  <link rel="stylesheet" href="/assets/app.css">
+  <link rel="stylesheet" href="/assets/admin.css">
+</head>
+<body class="dashboard-body">
+  <div class="app-frame">
+    <!-- Sidebar: the menu and user box are filled in by shell.js for your role -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-brand">
+        <a href="/"><span><strong>Bluebee</strong></span></a>
+        <button type="button" class="sidebar-close" id="sidebarClose" aria-label="Close navigation">×</button>
+      </div>
+      <nav class="sidebar-nav"></nav>
+      <div class="sidebar-user"></div>
+    </aside>
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <div class="main-column">
+      <button type="button" class="menu-toggle floating-menu" id="menuToggle" aria-label="Open navigation">☰</button>
+      <main class="content-shell">
+        <section class="page-head">
+          <div>
+            <a class="back-link" href="/admin-publishers.html">← Publishers</a>
+            <h1 id="pubTitle">Publisher</h1>
+            <p>Manage this publisher’s identity, status, and plan overrides.</p>
+          </div>
+        </section>
+        <div class="edit-layout">
+          <section class="panel">
+            <div class="section-head"><div><span class="eyebrow">Configuration</span><h2>Publisher details</h2></div></div>
+            <form class="stack" id="editForm">
+              <label>Publisher name<input name="name" required maxlength="80"></label>
+              <label>Status
+                <select name="status">
+                  <option value="active">Active</option>
+                  <option value="suspended">Suspended</option>
+                </select>
+                <small>Suspended workspaces are locked: their members cannot sign in or post.</small>
+              </label>
+              <div class="form-divider">
+                <span>Plan overrides</span>
+                <p>Leave a limit empty to use the plan default shown in the box.</p>
+              </div>
+              <div class="form-grid">
+                <label>Monthly posts<input name="monthlyPosts" type="number" min="1"></label>
+                <label>X accounts<input name="xAccounts" type="number" min="1"></label>
+                <label>Team members<input name="teamMembers" type="number" min="1"></label>
+              </div>
+              <div class="form-actions">
+                <a class="button secondary" href="/admin-publishers.html">Cancel</a>
+                <button class="button" type="submit" id="saveBtn">Save publisher</button>
+              </div>
+            </form>
+          </section>
+          <aside class="panel edit-summary">
+            <span class="eyebrow">Current usage</span>
+            <h2>Workspace</h2>
+            <div class="summary-stat"><strong id="useTeam">–</strong><span>Team members</span></div>
+            <div class="summary-stat"><strong id="useAccounts">–</strong><span>X accounts</span></div>
+            <div class="summary-stat"><strong id="useMonth">–</strong><span>Posts this month</span></div>
+            <div class="summary-stat"><strong id="useTotal">–</strong><span>Total posts</span></div>
+            <div class="summary-meta"><span>Owner</span><code id="ownerLine">–</code></div>
+            <div class="summary-meta"><span>Workspace slug</span><code id="slugLine">–</code></div>
+            <div class="form-actions" style="margin-top:18px"><button class="button secondary" type="button" id="openBtn">Open workspace</button></div>
+          </aside>
+        </div>
+        <div id="toast" class="toast" role="status" aria-live="polite"></div>
+      </main>
+    </div>
+  </div>
+
+  <script src="/assets/common.js"></script>
+  <script src="/assets/shell.js"></script>
+  <script src="/assets/admin-publisher-edit.js"></script>
+</body>
+</html>

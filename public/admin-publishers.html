@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="robots" content="noindex">
+  <title>Publishers · Bluebee</title>
+  <style>html.auth-pending body{visibility:hidden}</style>
+  <script src="/assets/auth-guard.js"></script>
+  <link rel="stylesheet" href="/assets/app.css">
+  <link rel="stylesheet" href="/assets/admin.css">
+</head>
+<body class="dashboard-body">
+  <div class="app-frame">
+    <!-- Sidebar: the menu and user box are filled in by shell.js for your role -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-brand">
+        <a href="/"><span><strong>Bluebee</strong></span></a>
+        <button type="button" class="sidebar-close" id="sidebarClose" aria-label="Close navigation">×</button>
+      </div>
+      <nav class="sidebar-nav"></nav>
+      <div class="sidebar-user"></div>
+    </aside>
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <div class="main-column">
+      <button type="button" class="menu-toggle floating-menu" id="menuToggle" aria-label="Open navigation">☰</button>
+      <main class="content-shell">
+        <section class="page-head">
+          <div>
+            <h1>Publishers</h1>
+            <p>Create and manage isolated workspaces. Each publisher has an owner, a team, and its own X accounts.</p>
+          </div>
+        </section>
+        <div class="split-layout">
+          <section class="panel form-card">
+            <div class="section-head"><div><span class="eyebrow">New workspace</span><h2>Add publisher</h2></div></div>
+            <form class="stack" id="publisherForm">
+              <label>Publisher name<input name="name" required maxlength="80" placeholder="Publisher or company name"></label>
+              <label>Owner name<input name="ownerName" required maxlength="80" placeholder="Primary contact"></label>
+              <label>Owner email<input type="email" name="ownerEmail" required placeholder="owner@example.com"></label>
+              <label>Owner password <span class="optional">optional</span>
+                <input type="password" name="ownerPassword" minlength="10" autocomplete="new-password" placeholder="Leave blank to generate one">
+                <small>At least 10 characters. A generated password is shown once after you create the publisher.</small>
+              </label>
+              <button class="button" type="submit" id="publisherSubmit">Create publisher</button>
+            </form>
+          </section>
+          <section class="panel table-wrap">
+            <div class="section-head padded"><div><span class="eyebrow">All workspaces</span><h2 id="publisherCount">Publishers</h2></div></div>
+            <div class="list-search">
+              <label for="publisherSearch">Search publishers</label>
+              <input type="search" id="publisherSearch" placeholder="Name, owner, email, or status" autocomplete="off">
+              <p class="list-search-status" id="publisherStatus" role="status" aria-live="polite"></p>
+              <p class="list-search-empty" id="publisherEmpty" hidden>No matches found. Try a different search.</p>
+            </div>
+            <div class="table-scroll">
+              <table>
+                <thead><tr><th>Publisher</th><th>Owner</th><th>Usage</th><th>Status</th><th></th></tr></thead>
+                <tbody id="publisherRows"></tbody>
+              </table>
+            </div>
+          </section>
+        </div>
+        <div id="toast" class="toast" role="status" aria-live="polite"></div>
+      </main>
+    </div>
+  </div>
+
+  <script src="/assets/common.js"></script>
+  <script src="/assets/shell.js"></script>
+  <script src="/assets/admin-publishers.js"></script>
+</body>
+</html>

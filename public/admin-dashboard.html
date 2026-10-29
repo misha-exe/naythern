@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="robots" content="noindex">
+  <title>Platform overview · Bluebee</title>
+  <style>html.auth-pending body{visibility:hidden}</style>
+  <script src="/assets/auth-guard.js"></script>
+  <link rel="stylesheet" href="/assets/app.css">
+  <link rel="stylesheet" href="/assets/admin.css">
+</head>
+<body class="dashboard-body">
+  <div class="app-frame">
+    <!-- Sidebar: the menu and user box are filled in by shell.js for your role -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-brand">
+        <a href="/"><span><strong>Bluebee</strong></span></a>
+        <button type="button" class="sidebar-close" id="sidebarClose" aria-label="Close navigation">×</button>
+      </div>
+      <nav class="sidebar-nav"></nav>
+      <div class="sidebar-user"></div>
+    </aside>
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <div class="main-column">
+      <button type="button" class="menu-toggle floating-menu" id="menuToggle" aria-label="Open navigation">☰</button>
+      <main class="content-shell">
+        <section class="page-head">
+          <div>
+            <h1>Platform overview</h1>
+            <p>Publishers, connections, and publishing health across the platform.</p>
+          </div>
+        </section>
+        <section class="metric-grid" id="metrics"></section>
+        <div class="dashboard-grid">
+          <section class="panel table-wrap">
+            <div class="section-head padded">
+              <div><span class="eyebrow">Customers</span><h2>Recent publishers</h2></div>
+              <a href="/admin-publishers.html">Manage all</a>
+            </div>
+            <div class="table-scroll">
+              <table>
+                <thead><tr><th>Publisher</th><th>Team</th><th>X accounts</th><th>Posts</th><th>Status</th></tr></thead>
+                <tbody id="recentRows"></tbody>
+              </table>
+            </div>
+            <div class="empty-state" id="recentEmpty" hidden>No publishers yet. Add your first one on the Publishers page.</div>
+          </section>
+          <section class="panel">
+            <div class="section-head"><div><span class="eyebrow">Audit trail</span><h2>Recent activity</h2></div></div>
+            <div class="audit-list" id="auditList"></div>
+            <div class="empty-state" id="auditEmpty" hidden>Nothing has happened yet.</div>
+          </section>
+        </div>
+        <div id="toast" class="toast" role="status" aria-live="polite"></div>
+      </main>
+    </div>
+  </div>
+
+  <script src="/assets/common.js"></script>
+  <script src="/assets/shell.js"></script>
+  <script src="/assets/admin-dashboard.js"></script>
+</body>
+</html>
