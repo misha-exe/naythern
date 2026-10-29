@@ -60,7 +60,7 @@ function clientFor(account) {
   let c = null;
   try { c = secure.parseXCookie(secure.decrypt(account.cookieEnc)); } catch { c = null; }
   if (!c) throw new Error('The saved X session could not be read. Save the cookies again on the X Accounts page.');
-  return new TwitterClient(c.authToken, c.ct0, account.adsAccountId);
+  return new TwitterClient(c.authToken, c.ct0, account.adsAccountId, c.extra);
 }
 
 /* ================= session ================= */
@@ -115,7 +115,7 @@ function readAccountFields(body, { requireAll }) {
   if (body.cookie) {
     const parsed = secure.parseXCookie(body.cookie);
     if (!parsed) return { error: 'Paste the cookies as: auth_token=…; ct0=…' };
-    out.cookieEnc = secure.encrypt(`auth_token=${parsed.authToken}; ct0=${parsed.ct0}`);
+    out.cookieEnc = secure.encrypt(`auth_token=${parsed.authToken}; ct0=${parsed.ct0}${parsed.extra ? '; ' + parsed.extra : ''}`);
     out.sessionUpdatedAt = new Date().toISOString();
   }
   return { out };
