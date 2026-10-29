@@ -70,7 +70,7 @@ class FakeTwitter {
   constructor(authToken, ct0, adsAccountId) { Object.assign(this, { authToken, ct0, adsAccountId }); FakeTwitter.last = this; }
   async uploadMediaChunked(p, cb) { cb && cb(100); return '9000' + Math.floor(Math.random() * 1e6); }
   async addToAdsMediaLibrary() {}
-  async postTweet() { return { postId: '1234567890', cardUri: 'card://x' }; }
+  async postTweet() { return FakeTwitter.noPostId ? { success: true, cardUri: 'card://x' } : { postId: '1234567890', cardUri: 'card://x' }; }
 }
 const stubs = {
   express,
@@ -193,11 +193,15 @@ const ok = (cond, label) => { assert.ok(cond, label); passed++; console.log('  â
   await call(alice, 'PATCH', `/api/team/${edId}`, { accountIds: [acct1, acct2] });
   r = await call(ed, 'POST', '/api/publish', { accountId: acct2, postText: 'hi', websiteUrl: 'https://e.com', headline: 'H2', mediaId: '2' });
   ok(r.status === 200 && FakeTwitter.last.ct0 === '2'.repeat(32), 'after granting access the editor can switch to account 2');
+  FakeTwitter.noPostId = true;
+  r = await call(ed, 'POST', '/api/publish', { accountId: acct2, postText: 'hi', websiteUrl: 'https://e.com', headline: 'H2b', mediaId: '2' });
+  ok(r.status === 400 && !r.body.success, 'a reply without a post ID is reported as a failure, never as success');
+  FakeTwitter.noPostId = false;
   const { who: vi } = await login('vi@alpha.com', 'viewer-pass-12');
   r = await call(vi, 'POST', '/api/publish', { accountId: acct1, postText: 'x', websiteUrl: 'https://e.com', headline: 'H', mediaId: '1' });
   ok(r.status === 403, 'viewers cannot publish');
   r = await call(alice, 'GET', '/api/posts');
-  ok(r.body.posts.length === 2 && r.body.posts[0].by === 'Ed', 'owner sees all history, including who posted');
+  ok(r.body.posts.length === 3 && r.body.posts.filter((p) => p.status === 'failed').length === 1, 'owner sees all history, including who posted');
 
   console.log('Uploads (per account)');
   const up = (accountId) => call(ed, 'POST', '/api/upload-url', { accountId, clientId: 'up_abcdef123', videoUrl: 'https://93.184.216.34/v.mp4' });
