@@ -25,15 +25,28 @@ function decrypt(stored) {
   return Buffer.concat([d.update(Buffer.from(p[3], 'base64url')), d.final()]).toString('utf8');
 }
 
-// "auth_token=abc; ct0=def" (any order, extra cookies ignored) -> { authToken, ct0 } or null
+// "auth_token=abc; ct0=def; twid=...; kdt=..." (any order) -> { authToken, ct0, extra } or null.
+// `extra` keeps the account's OTHER cookies (twid, kdt, att, ...). Accounts with 2FA / login verification often
+// need them, because X ties the session to more than just auth_token + ct0.
 function parseXCookie(text) {
   const out = {};
+  const order = [];
   String(text || '').split(';').forEach((pair) => {
     const i = pair.indexOf('=');
-    if (i > 0) out[pair.slice(0, i).trim().toLowerCase()] = pair.slice(i + 1).trim();
+    if (i > 0) {
+      const name = pair.slice(0, i).trim();
+      out[name.toLowerCase()] = pair.slice(i + 1).trim();
+      order.push(name);
+    }
   });
   const ok = (v) => typeof v === 'string' && /^[A-Za-z0-9._%-]{16,400}$/.test(v);
-  return ok(out.auth_token) && ok(out.ct0) ? { authToken: out.auth_token, ct0: out.ct0 } : null;
+  if (!ok(out.auth_token) || !ok(out.ct0)) return null;
+  const extra = order
+    .filter((n) => !['auth_token', 'ct0'].includes(n.toLowerCase()) && /^[A-Za-z0-9_.-]{1,40}$/.test(n) && /^[^\s;,"\\]{1,1500}$/.test(out[n.toLowerCase()]))
+    .map((n) => `${n}=${out[n.toLowerCase()]}`)
+    .join('; ')
+    .slice(0, 4000);
+  return { authToken: out.auth_token, ct0: out.ct0, extra };
 }
 
 const isAdsAccountId = (v) => /^[a-z0-9]{6,24}$/i.test(String(v || ''));
