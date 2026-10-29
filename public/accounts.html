@@ -32,7 +32,7 @@
             <p>Add the X accounts this workspace posts from, and keep each account’s posting session up to date.</p>
           </div>
         </section>
-        <div class="notice-box">Each account needs its <strong>Ads account ID</strong> and the <code>auth_token</code> and <code>ct0</code> cookies from x.com (signed in as that account). Treat the cookies like a password. They are stored encrypted and are never shown again.</div>
+        <div class="notice-box">Each account needs its <strong>Ads account ID</strong> and the cookies from x.com while signed in as that account: <code>auth_token</code>, <code>ct0</code>, and for 2FA accounts also <code>twid</code> and <code>kdt</code>. Treat the cookies like a password. They are stored encrypted and are never shown again.</div>
         <div class="two-col">
           <section class="panel">
             <div class="section-head"><div><span class="eyebrow">Connect</span><h2>Add an X account</h2></div></div>
@@ -41,7 +41,7 @@
               <label>Label<input name="label" required maxlength="60" placeholder="Main account"></label>
               <label>X username <span class="optional">optional</span><input name="username" maxlength="16" placeholder="@username"></label>
               <label>Ads account ID<input name="adsAccountId" required placeholder="18ce55xmjw6" autocomplete="off"></label>
-              <label>X cookies<input type="password" name="cookie" required autocomplete="new-password" placeholder="auth_token=…; ct0=…"></label>
+              <label>X cookies<input type="password" name="cookie" required autocomplete="new-password" placeholder="auth_token=…; ct0=…; twid=…; kdt=…"></label>
               <button class="button" type="submit" id="accountSubmit">Save account</button>
             </form>
           </section>
