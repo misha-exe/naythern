@@ -502,22 +502,36 @@ class TwitterClient {
     let lastError = null;
     for (const host of ['https://api.x.com', 'https://x.com']) {
       const url = `${host}/i/api/graphql/${queryId}/CreateTweet`;
+
+      // 1) The network call. Only transport / HTTP errors are handled here (and may try the other host).
+      let gqlRes;
       try {
-        const gqlRes = await axios.post(url, graphqlPayload, { headers: gqlHeaders, timeout: 30000 });
-        const result = gqlRes.data?.data?.create_tweet?.tweet_results?.result;
-        const postId = result?.rest_id || result?.tweet?.rest_id;
-        if (postId) return { success: true, postId, cardUri: card.card_uri };
-        if (gqlRes.data?.errors?.length) {
-          throw new Error(gqlRes.data.errors[0]?.message || 'GraphQL mutation returned errors.');
-        }
-        return { success: true, raw: gqlRes.data, cardUri: card.card_uri };
+        gqlRes = await axios.post(url, graphqlPayload, { headers: gqlHeaders, timeout: 30000 });
       } catch (e) {
         lastError = e;
         const status = e.response?.status;
         const body = JSON.stringify(e.response?.data || e.message).slice(0, 300);
-        console.warn(`[GraphQL] CreateTweet via ${host} failed: HTTP ${status || 'n/a'} — ${body}`);
+        console.warn(`[GraphQL] CreateTweet via ${host} failed: HTTP ${status || 'n/a'} - ${body}`);
         if (status && status !== 404) break;
+        continue;
       }
+
+      // 2) The reply. HTTP 200 does NOT mean a post exists: X can answer 200 with errors, or with an empty result
+      //    when it silently blocks the post. Success is ONLY declared when X hands back a real post ID.
+      const data = gqlRes.data;
+      const result = data?.data?.create_tweet?.tweet_results?.result;
+      const postId = result?.rest_id || result?.tweet?.rest_id;
+      if (postId && /^\d+$/.test(String(postId))) return { success: true, postId: String(postId), cardUri: card.card_uri };
+
+      const apiErr = data?.errors?.[0];
+      const detail = apiErr
+        ? (apiErr.message || JSON.stringify(apiErr).slice(0, 200))
+        : 'X accepted the request but did not create the post (no post ID came back). This usually means X silently blocked it: ' +
+          'duplicate post text, a posting limit, or a restriction on the account. Nothing was posted. Change the text and try again.';
+      console.error(`[Publish] CreateTweet returned HTTP ${gqlRes.status} without a post ID. card=${card.card_uri} reply=${JSON.stringify(data).slice(0, 500)}`);
+      const err = new Error(cleanXMessage(detail) || detail);
+      err.cardUri = card.card_uri;
+      throw err;
     }
 
     const status = lastError?.response?.status;
