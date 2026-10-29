@@ -391,8 +391,10 @@ router.post('/publish', CAN_POST, wrap(async (req, res) => {
 
   try {
     const result = await client.postTweet(postText, mediaId, String(websiteUrl).trim(), headline);
-    const postId = result.postId && /^\d+$/.test(String(result.postId)) ? String(result.postId) : null;
-    const postUrl = postId ? `https://x.com/i/status/${postId}` : null;
+    const postId = result && result.postId && /^\d+$/.test(String(result.postId)) ? String(result.postId) : null;
+    // No post ID means X did not confirm a post. Never report that as success.
+    if (!postId) throw new Error('X did not confirm the post (no post ID was returned), so it was not published. Please try again.');
+    const postUrl = `https://x.com/i/status/${postId}`;
     await log({ ...base, status: 'published', postId, postUrl }, 'post.published');
     return res.json({ success: true, postId, postUrl, cardUri: result.cardUri, message: 'X created the Website Card post.' });
   } catch (postErr) {
