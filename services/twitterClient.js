@@ -97,11 +97,11 @@ function cleanXMessage(raw) {
 }
 
 class TwitterClient {
-  constructor(authToken, ct0, adsAccountId) {
+  constructor(authToken, ct0, adsAccountId, extraCookies) {
     this.authToken = (authToken || '').trim();
     this.ct0 = (ct0 || '').trim();
     this.adsAccountId = (adsAccountId || '').trim();
-    this.cookieHeader = `auth_token=${this.authToken}; ct0=${this.ct0};`;
+    this.cookieHeader = `auth_token=${this.authToken}; ct0=${this.ct0};${extraCookies ? ' ' + String(extraCookies).trim() + ';' : ''}`;
 
     // The Ads site uses its own public app bearer (the "authorization" header on ads-api.x.com requests).
     // Copy the value after "Bearer " from your DevTools capture into TWITTER_ADS_BEARER.
@@ -320,6 +320,22 @@ class TwitterClient {
    * video usable in the Ads Media Library and in video cards. Cookie session, as before.
    */
   async uploadMediaChunked(filePath, onProgress) {
+    try {
+      return await this._uploadMediaChunked(filePath, onProgress);
+    } catch (err) {
+      if (err && err.response) {
+        const e = this._wrapError(err, 'Uploading the video to X');
+        if (e.status === 401 || e.status === 403) {
+          e.message += '. X rejected this account\'s saved session. Re-copy ALL cookies for this account (auth_token, ct0, twid, kdt) from a fresh, ' +
+            'signed-in x.com tab and use "Update session" on the X Accounts page. If the account has a login challenge or is locked, open x.com and clear it first.';
+        }
+        throw e;
+      }
+      throw err;
+    }
+  }
+
+  async _uploadMediaChunked(filePath, onProgress) {
     const stat = fs.statSync(filePath);
     const totalBytes = stat.size;
 
