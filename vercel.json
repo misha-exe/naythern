@@ -1,0 +1,139 @@
+{
+  "version": 2,
+  "functions": {
+    "api/index.js": {
+      "maxDuration": 60,
+      "memory": 1024,
+      "includeFiles": "node_modules/agent-twitter-client/**"
+    }
+  },
+  "rewrites": [
+    {
+      "source": "/api/(.*)",
+      "destination": "/api/index.js"
+    }
+  ],
+  "redirects": [
+    {
+      "source": "/",
+      "missing": [
+        {
+          "type": "cookie",
+          "key": "bluebee_session"
+        }
+      ],
+      "destination": "/login.html",
+      "permanent": false
+    },
+    {
+      "source": "/index.html",
+      "missing": [
+        {
+          "type": "cookie",
+          "key": "bluebee_session"
+        }
+      ],
+      "destination": "/login.html",
+      "permanent": false
+    },
+    {
+      "source": "/dashboard.html",
+      "missing": [
+        {
+          "type": "cookie",
+          "key": "bluebee_session"
+        }
+      ],
+      "destination": "/login.html",
+      "permanent": false
+    },
+    {
+      "source": "/posts.html",
+      "missing": [
+        {
+          "type": "cookie",
+          "key": "bluebee_session"
+        }
+      ],
+      "destination": "/login.html",
+      "permanent": false
+    },
+    {
+      "source": "/accounts.html",
+      "missing": [
+        {
+          "type": "cookie",
+          "key": "bluebee_session"
+        }
+      ],
+      "destination": "/login.html",
+      "permanent": false
+    },
+    {
+      "source": "/team.html",
+      "missing": [
+        {
+          "type": "cookie",
+          "key": "bluebee_session"
+        }
+      ],
+      "destination": "/login.html",
+      "permanent": false
+    },
+    {
+      "source": "/admin-dashboard.html",
+      "missing": [
+        {
+          "type": "cookie",
+          "key": "bluebee_session"
+        }
+      ],
+      "destination": "/login.html",
+      "permanent": false
+    },
+    {
+      "source": "/admin-publishers.html",
+      "missing": [
+        {
+          "type": "cookie",
+          "key": "bluebee_session"
+        }
+      ],
+      "destination": "/login.html",
+      "permanent": false
+    },
+    {
+      "source": "/admin-publisher-edit.html",
+      "missing": [
+        {
+          "type": "cookie",
+          "key": "bluebee_session"
+        }
+      ],
+      "destination": "/login.html",
+      "permanent": false
+    },
+    {
+      "source": "/admin-editors.html",
+      "missing": [
+        {
+          "type": "cookie",
+          "key": "bluebee_session"
+        }
+      ],
+      "destination": "/login.html",
+      "permanent": false
+    },
+    {
+      "source": "/admin-announcements.html",
+      "missing": [
+        {
+          "type": "cookie",
+          "key": "bluebee_session"
+        }
+      ],
+      "destination": "/login.html",
+      "permanent": false
+    }
+  ]
+}
