@@ -11,7 +11,7 @@ document.addEventListener('DOMContentLoaded', () => {
   function updateSession(a) {
     const input = el('input');
     input.type = 'password';
-    input.placeholder = 'auth_token=…; ct0=…';
+    input.placeholder = 'auth_token=…; ct0=…; twid=…; kdt=…';
     input.autocomplete = 'new-password';
     const label = el('label', null, 'X cookies');
     label.appendChild(input);
