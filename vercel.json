@@ -2,8 +2,7 @@
   "version": 2,
   "functions": {
     "api/index.js": {
-      "maxDuration": 60,
-      "memory": 1024,
+      "maxDuration": 300,
       "includeFiles": "node_modules/agent-twitter-client/**"
     }
   },
