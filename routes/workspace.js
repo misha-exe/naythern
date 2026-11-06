@@ -282,24 +282,35 @@ router.get('/media', wrap(async (req, res) => {
   res.json(await db.listMedia(account.id));
 }));
 
+// Time budget for ONE upload request. Keep it ~30s under the function's maxDuration (vercel.json), so we can answer with a
+// clear error instead of Vercel returning a 504 page. On Pro with maxDuration 800, set FUNCTION_BUDGET_SECONDS=770.
+const BUDGET_MS = (Number(process.env.FUNCTION_BUDGET_SECONDS) || 270) * 1000;
+const TOO_SLOW = 'This video is too long to process within the server time limit. Try a shorter video, or compress it first.';
+
 // Shared tail of both upload routes: square it, thumbnail it, push it to X, remember it for THIS account.
-async function processVideo({ req, res, account, clientId, rawPath, displayName, temp }) {
+async function processVideo({ req, res, account, clientId, rawPath, displayName, temp, startedAt }) {
   const squarePath = tmpName('square', 'mp4');
   const thumbPath = tmpName('thumb', 'jpg');
   temp.push(squarePath, thumbPath);
+  const left = () => BUDGET_MS - (Date.now() - startedAt);
   try {
-    sendProgress(clientId, 'Preparing an 800x800 website card without cropping', 28);
-    await makeSquare800(rawPath, squarePath);
+    if (left() < 60000) throw new Error(TOO_SLOW);
+    sendProgress(clientId, 'Converting to an 800x800 square (0%)', 25);
+    await makeSquare800(rawPath, squarePath, {
+      timeoutMs: left() - 45000,   // leave ~45s for the thumbnail + the upload to X
+      onProgress: (pct) => sendProgress(clientId, `Converting to an 800x800 square (${Math.round(pct)}%)`, scale(pct, 25, 58))
+    });
     await generateThumbnail(squarePath, thumbPath);
-    sendProgress(clientId, 'Square video is ready. Starting X upload.', 40);
+    if (left() < 25000) throw new Error(TOO_SLOW);
+    sendProgress(clientId, 'Square video is ready. Starting X upload.', 60);
 
     const client = clientFor(account);
     const mediaId = await client.uploadMediaChunked(squarePath, (p) => {
-      const overall = scale(p, 40, 85);
+      const overall = scale(p, 60, 92);
       sendProgress(clientId, `Uploading to X (${Math.round(overall)}%)`, overall);
     });
-    sendProgress(clientId, 'X is processing the video', 88);
-    sendProgress(clientId, 'Adding video to the Ads Media Library', 95);
+    sendProgress(clientId, 'X is processing the video', 94);
+    sendProgress(clientId, 'Adding video to the Ads Media Library', 97);
     await client.addToAdsMediaLibrary(mediaId, displayName);
     sendProgress(clientId, 'Video added to the Ads Media Library and selected', 100);
 
@@ -320,6 +331,7 @@ async function processVideo({ req, res, account, clientId, rawPath, displayName,
 }
 
 router.post('/upload-url', CAN_POST, wrap(async (req, res) => {
+  const startedAt = Date.now();
   const { videoUrl, clientId } = req.body || {};
   const account = await resolveAccount(req, res, (req.body || {}).accountId);
   if (!account) return;
@@ -338,7 +350,7 @@ router.post('/upload-url', CAN_POST, wrap(async (req, res) => {
     return res.status(500).json({ error: `Could not download that video: ${err.message}` });
   }
   const displayName = path.basename(new URL(safeUrl).pathname) || 'video.mp4';
-  return processVideo({ req, res, account, clientId, rawPath, displayName, temp });
+  return processVideo({ req, res, account, clientId, rawPath, displayName, temp, startedAt });
 }));
 
 const upload = multer({ dest: TMP_DIR, limits: { fileSize: 4.5 * 1024 * 1024 } });
@@ -349,12 +361,13 @@ const receiveFile = (req, res, next) => upload.single('video')(req, res, (err) =
 });
 
 router.post('/upload-file', CAN_POST, receiveFile, wrap(async (req, res) => {
+  const startedAt = Date.now();
   if (!req.file) return res.status(400).json({ error: 'No video uploaded.' });
   const temp = [req.file.path];
   const account = await resolveAccount(req, res, req.body && req.body.accountId);
   if (!account) { unlinkAll(temp); return; }
   const displayName = String(req.file.originalname || 'video.mp4').slice(0, 120);
-  return processVideo({ req, res, account, clientId: req.body.clientId, rawPath: req.file.path, displayName, temp });
+  return processVideo({ req, res, account, clientId: req.body.clientId, rawPath: req.file.path, displayName, temp, startedAt });
 }));
 
 /* ================= publish ================= */
