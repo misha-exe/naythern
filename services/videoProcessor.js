@@ -42,23 +42,42 @@ async function downloadVideo(url, outputPath, onProgress) {
   });
 }
 
-function makeSquare800(inputPath, outputPath) {
+// Letterboxes the video into an 800x800 square (no cropping) at max 30 fps.
+// opts.onProgress(percent 0-100) reports conversion progress; opts.timeoutMs stops ffmpeg cleanly if it runs too long,
+// so the API can answer with a readable error instead of Vercel killing the whole function (504 FUNCTION_INVOCATION_TIMEOUT).
+function makeSquare800(inputPath, outputPath, opts = {}) {
+  const { onProgress, timeoutMs } = opts;
   return new Promise((resolve, reject) => {
-    ffmpeg(inputPath)
+    let timer = null;
+    let timedOut = false;
+    const cmd = ffmpeg(inputPath)
       .outputOptions([
-        "-vf scale=800:800:force_original_aspect_ratio=decrease,pad=800:800:(800-iw)/2:(800-ih)/2:black",
-        "-c:v libx264",
-        "-preset ultrafast", // Essential on serverless to finish within timeout
-        "-pix_fmt yuv420p",
-        "-r 30",
-        "-c:a aac",
-        "-b:a 128k",
-        "-movflags +faststart"
+        '-vf scale=800:800:force_original_aspect_ratio=decrease:flags=fast_bilinear,pad=800:800:(800-iw)/2:(800-ih)/2:black',
+        '-c:v libx264',
+        '-preset ultrafast',   // fastest encode: essential on serverless
+        '-crf 28',             // smaller output = faster upload to X (still fine at 800x800)
+        '-threads 0',
+        '-pix_fmt yuv420p',
+        '-r 30',               // X accepts up to 60 fps; 30 keeps the encode fast
+        '-c:a aac',
+        '-b:a 96k',
+        '-movflags +faststart'
       ])
       .toFormat('mp4')
-      .save(outputPath)
-      .on('end', () => resolve(outputPath))
-      .on('error', (err) => reject(err));
+      .on('progress', (p) => {
+        if (onProgress && Number.isFinite(p.percent)) onProgress(Math.max(0, Math.min(100, p.percent)));
+      })
+      .on('end', () => { clearTimeout(timer); resolve(outputPath); })
+      .on('error', (err) => {
+        clearTimeout(timer);
+        reject(timedOut
+          ? new Error('Converting this video took longer than the server allows. Try a shorter video, or compress it first.')
+          : err);
+      });
+    if (timeoutMs) {
+      timer = setTimeout(() => { timedOut = true; try { cmd.kill('SIGKILL'); } catch { /* already finished */ } }, timeoutMs);
+    }
+    cmd.save(outputPath);
   });
 }
 
