@@ -43,6 +43,9 @@ document.addEventListener('DOMContentLoaded', () => {
       return data;
     }
     const htmlText = await res.text();
+    if (res.status === 504 || htmlText.includes('FUNCTION_INVOCATION_TIMEOUT')) {
+      throw new Error('The server ran out of time processing this video. Try a shorter or smaller video.');
+    }
     throw new Error(`Server status ${res.status}: ${htmlText.replace(/<[^>]*>/g, '').trim().substring(0, 100)}`);
   }
 
